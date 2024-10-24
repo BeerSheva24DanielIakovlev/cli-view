@@ -1,4 +1,5 @@
 package telran.view;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.function.Function;
@@ -9,11 +10,11 @@ public interface InputOutput {
 
 	void writeString(String str);
 
-	default void writeLine(Object obj){
+	default void writeLine(Object obj) {
 		writeString(obj.toString() + "\n");
 	}
 
-	 default <T> T readObject(String prompt, String errorPrompt, Function<String, T> mapper){
+	default <T> T readObject(String prompt, String errorPrompt, Function<String, T> mapper) {
 		boolean running = false;
 		T res = null;
 		do {
@@ -26,9 +27,10 @@ public interface InputOutput {
 				running = true;
 			}
 
-		}while(running);
+		} while (running);
 		return res;
 	}
+
 	/**
 	 * 
 	 * @param prompt
@@ -59,44 +61,48 @@ public interface InputOutput {
 		return readObject(prompt, errorPrompt,
 				string -> {
 
-			double res = Double.parseDouble(string);
-			if (res < min) {
-				throw new IllegalArgumentException("must be not less than " + min);
-			}
-			if (res > max) {
-				throw new IllegalArgumentException("must be not greater than " + max);
-			}
-			return res;
+					double res = Double.parseDouble(string);
+					if (res < min) {
+						throw new IllegalArgumentException("must be not less than " + min);
+					}
+					if (res > max) {
+						throw new IllegalArgumentException("must be not greater than " + max);
+					}
+					return res;
 
-		});
+				});
 	}
+
 	default String readStringPredicate(String prompt, String errorPrompt,
 			Predicate<String> predicate) {
-		//Entered String must match a given predicate
+		// Entered String must match a given predicate
 		return readObject(prompt, errorPrompt, string -> {
-			if(!predicate.test(string)) {
+			if (!predicate.test(string)) {
 				throw new IllegalArgumentException("");
 			}
 			return string;
 		});
 	}
+
 	default String readStringOptions(String prompt, String errorPrompt,
 			HashSet<String> options) {
-		//Entered String must be one out of a given options
+		// Entered String must be one out of a given options
 		return readStringPredicate(prompt, errorPrompt, options::contains);
 	}
+
 	default LocalDate readIsoDate(String prompt, String errorPrompt) {
-		//Entered String must be a LocalDate in format (yyyy-mm-dd)
+		// Entered String must be a LocalDate in format (yyyy-mm-dd)
 		return readObject(prompt, errorPrompt, LocalDate::parse);
 	}
+
 	default LocalDate readIsoDateRange(String prompt, String errorPrompt, LocalDate from,
 			LocalDate to) {
-		//Entered String must be a LocalDate in format (yyyy-mm-dd) in the (from, to)(after from and before to)
+		// Entered String must be a LocalDate in format (yyyy-mm-dd) in the (from,
+		// to)(after from and before to)
 		return readObject(prompt, errorPrompt, string -> {
 			LocalDate res = LocalDate.parse(string);
-			if(!(res.isAfter(from)&& res.isBefore(to))) {
-				throw new IllegalArgumentException
-				(String.format("Date must be after %s before %s", from, to));
+			if (!(res.isAfter(from) && res.isBefore(to))) {
+				throw new IllegalArgumentException(String.format("Date must be after %s before %s", from, to));
 			}
 			return res;
 		});
